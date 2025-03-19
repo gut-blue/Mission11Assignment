@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Book } from './types/Book';
 
+// State variables for books, pagination, and sorting
 function BookList() {
   const [books, setBooks] = useState<Book[]>([]);
   const [pageSize, setPageSize] = useState<number>(5);
@@ -9,6 +10,7 @@ function BookList() {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [sortOrder, setSortOrder] = useState<string>('asc');
 
+  // Fetch books whenever pageSize, pageNum, totalItems, or sortOrder changes
   useEffect(() => {
     const fetchBooks = async () => {
       const response = await fetch(`https://localhost:5000/Book/AllBooks?pageSize=${pageSize}&pageNum=${pageNum}&sortOrder=${sortOrder}`);
@@ -19,7 +21,7 @@ function BookList() {
     };
 
     fetchBooks();
-  }, [pageSize, pageNum, totalItems, sortOrder]);
+  }, [pageSize, pageNum, totalItems, sortOrder]); // Re-fetch books if any of these state variables change
 
   return (
     <>
@@ -75,6 +77,7 @@ function BookList() {
         Previous
       </button>
 
+      {/* Dynamically generate page number buttons */}
       {[...Array(totalPages)].map((_, index) => (
         <button disabled={pageNum === index + 1} key={index + 1} onClick={() => setPageNum(index + 1)}>
           {index + 1}
@@ -86,6 +89,7 @@ function BookList() {
       </button>
 
       <br />
+      {/* Dropdown to select number of results per page */}
       <label>
         Results per page:
         <select

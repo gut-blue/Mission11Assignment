@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Mission11Assignment.API.Data;
 
+// Making the model for the table in my DB
 public class Book
 {
     [Key]
