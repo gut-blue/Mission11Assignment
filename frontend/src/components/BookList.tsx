@@ -1,19 +1,26 @@
 import { useEffect, useState } from 'react';
-import { Book } from './types/Book';
+import { Book } from '../types/Book';
+import { useNavigate } from 'react-router-dom';
 
 // State variables for books, pagination, and sorting
-function BookList() {
+function BookList({ selectedCategories }: { selectedCategories: string[] }) {
   const [books, setBooks] = useState<Book[]>([]);
   const [pageSize, setPageSize] = useState<number>(5);
   const [pageNum, setPageNum] = useState<number>(1);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [sortOrder, setSortOrder] = useState<string>('asc');
+  const navigate = useNavigate();
 
   // Fetch books whenever pageSize, pageNum, totalItems, or sortOrder changes
   useEffect(() => {
     const fetchBooks = async () => {
-      const response = await fetch(`https://localhost:5000/Book/AllBooks?pageSize=${pageSize}&pageNum=${pageNum}&sortOrder=${sortOrder}`);
+      const categoryParams = selectedCategories // Sorting logic
+        .map((cat) => `bookCategories=${encodeURIComponent(cat)}`)
+        .join('&');
+      const response = await fetch(
+        `https://localhost:5000/Book/AllBooks?pageSize=${pageSize}&pageNum=${pageNum}&sortOrder=${sortOrder}${selectedCategories.length ? `&${categoryParams}` : ''}`
+      );
       const data = await response.json();
       setBooks(data.books);
       setTotalItems(data.totalNumBooks);
@@ -21,12 +28,11 @@ function BookList() {
     };
 
     fetchBooks();
-  }, [pageSize, pageNum, totalItems, sortOrder]); // Re-fetch books if any of these state variables change
+  }, [pageSize, pageNum, totalItems, sortOrder, selectedCategories]); // Re-fetch books if any of these state variables change
 
+  // Returning my list of book details
   return (
     <>
-      <h1>Hilton's Library</h1>
-      <br />
       {books.map((b) => (
         <div id="bookCard" className="card" key={b.bookID}>
           <h3 className="card-title">{b.title}</h3>
@@ -65,6 +71,14 @@ function BookList() {
                 {b.price}
               </li>
             </ul>
+
+            {/* Button for user to add new book to cart */}
+            <button
+              className="btn btn-success"
+              onClick={() => navigate(`/purchase/${b.title}/${b.bookID}/${b.price}`)}
+            >
+              <strong>Add Book to Cart</strong>
+            </button>
           </div>
         </div>
       ))}
