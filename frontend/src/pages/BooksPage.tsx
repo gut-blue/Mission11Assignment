@@ -11,18 +11,25 @@ function BooksPage() {
 
   return (
     <div className="container mt-4">
+      {/* First Row: Cart Summary and Welcome Card */}
       <div className="row">
-        <CartSummary />
-        <WelcomeCard />
+        <div className="col-12 col-md-3">
+          <CartSummary />
+        </div>
+        <div className="col-12 col-md-9">
+          <WelcomeCard />
+        </div>
       </div>
-      <div className="row">
-        <div className="col-md-3">
+
+      {/* Second Row: Category Filter and Book List */}
+      <div className="row mt-4">
+        <div className="col-12 col-md-3">
           <CategoryFilter
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
           />
         </div>
-        <div className="col-md-9">
+        <div className="col-12 col-md-9">
           <BookList selectedCategories={selectedCategories} />
         </div>
       </div>

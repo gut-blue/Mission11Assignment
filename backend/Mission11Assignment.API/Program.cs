@@ -13,7 +13,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<BookDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("BookConnection")));
 
-// using the addCors() service
+// using the addCors() service, adding options this time and policies
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -25,6 +25,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Adding capability to do logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 

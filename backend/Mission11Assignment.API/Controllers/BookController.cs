@@ -72,6 +72,8 @@ namespace Mission11Assignment.API.Controllers
             }
         }
         
+        // Adding another method so I can filter the books by category
+        // in my filtering menu on the frontend
         [HttpGet("GetBookCategories")]
         public IActionResult GetBookCategories()
         {
