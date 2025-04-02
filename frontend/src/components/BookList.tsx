@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Book } from '../types/Book';
 import { useNavigate } from 'react-router-dom';
+import { fetchBooks } from '../api/BooksAPI';
+import Pagination from './Pagination';
 
 // State variables for books, pagination, and sorting
 function BookList({ selectedCategories }: { selectedCategories: string[] }) {
@@ -9,26 +11,33 @@ function BookList({ selectedCategories }: { selectedCategories: string[] }) {
   const [pageNum, setPageNum] = useState<number>(1);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const [sortOrder, setSortOrder] = useState<string>('asc');
   const navigate = useNavigate();
+  const [sortOrder, setSortOrder] = useState<string>('asc');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // Fetch books whenever pageSize, pageNum, totalItems, or sortOrder changes
   useEffect(() => {
-    const fetchBooks = async () => {
-      const categoryParams = selectedCategories // Sorting logic
-        .map((cat) => `bookCategories=${encodeURIComponent(cat)}`)
-        .join('&');
-      const response = await fetch(
-        `https://localhost:5000/Book/AllBooks?pageSize=${pageSize}&pageNum=${pageNum}&sortOrder=${sortOrder}${selectedCategories.length ? `&${categoryParams}` : ''}`
-      );
-      const data = await response.json();
-      setBooks(data.books);
-      setTotalItems(data.totalNumBooks);
-      setTotalPages(Math.ceil(totalItems / pageSize));
+    const loadBooks = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchBooks(pageSize, pageNum, selectedCategories, sortOrder);
+
+        setBooks(data.books);
+        setTotalItems(data.totalNumBooks);
+        setTotalPages(Math.ceil(totalItems / pageSize));
+      } catch (error) {
+        setError((error as Error).message);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    fetchBooks();
+    loadBooks();
   }, [pageSize, pageNum, totalItems, sortOrder, selectedCategories]); // Re-fetch books if any of these state variables change
+
+  if (loading) return <p>Loading projects...</p>;
+  if (error) return <p className="text-red-500">Error: {error}</p>;
 
   // Returning my list of book details
   return (
@@ -92,32 +101,16 @@ function BookList({ selectedCategories }: { selectedCategories: string[] }) {
       </button>
 
       {/* Dynamically generate page number buttons */}
-      {[...Array(totalPages)].map((_, index) => (
-        <button disabled={pageNum === index + 1} key={index + 1} onClick={() => setPageNum(index + 1)}>
-          {index + 1}
-        </button>
-      ))}
-
-      <button disabled={pageNum === totalPages} onClick={() => setPageNum(pageNum + 1)}>
-        Next
-      </button>
-
-      <br />
-      {/* Dropdown to select number of results per page */}
-      <label>
-        Results per page:
-        <select
-          value={pageSize}
-          onChange={(b) => {
-            setPageSize(Number(b.target.value));
-            setPageNum(1);
-          }}
-        >
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="20">20</option>
-        </select>
-      </label>
+      <Pagination
+        currentPage={pageNum}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        onPageChange={setPageNum}
+        onPageSizeChange={(newSize) => {
+          setPageSize(newSize);
+          setPageNum(1);
+        }}
+      />
     </>
   );
 }
