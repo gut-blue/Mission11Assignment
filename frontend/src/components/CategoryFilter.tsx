@@ -16,7 +16,8 @@ function CategoryFilter({
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('https://localhost:5000/Book/GetBookCategories');
+        // I noticed that this response was originally pulling from the wrong route (it should be pulling from Azure now instead of my backend, so I updated the route to be the one Azure actually uses)
+        const response = await fetch('https://mission13assignment.azurewebsites.net/Book/GetBookCategories');
         const data = await response.json();
         console.log('Fetched categories:', data);
         setCategories(data);
