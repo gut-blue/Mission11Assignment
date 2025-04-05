@@ -18,7 +18,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins("http://localhost:3000", "https://mission13assignment.azurewebsites.net")
             .AllowCredentials()
             .AllowAnyHeader()
             .AllowAnyMethod();
@@ -38,10 +38,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHttpsRedirection();
+
 // Making sure to use the right port
 app.UseCors("AllowFrontend");
-
-app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
